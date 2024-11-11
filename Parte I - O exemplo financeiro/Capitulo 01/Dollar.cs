@@ -8,8 +8,8 @@ public void testMultiplication(){
     assertEquals(10, five.amount);
 }
 
-$5 USD + 10 CHF = $10 USD se a taxa é 2:1
-$5 * 2 = $10 USD                                 <- FOCO
+    $5 USD + 10 CHF = $10 USD se a taxa é 2:1
+    $5 * 2 = $10 USD                                 <- FOCO
     Tornar "quantidade" privada.
     Efeitos colaterais em Dollar?
     Arredondamento de dinheiro?

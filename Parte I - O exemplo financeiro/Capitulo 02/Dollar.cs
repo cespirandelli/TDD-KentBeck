@@ -15,7 +15,7 @@ public void testMultiplication(){
     $5 USD + 10 CHF = $10 USD se a taxa é 2:1
     $5 * 2 = $10 USD
     Tornar "quantidade" privada.
-    Efeitos colaterais em Dollar?                <- FOCO
+    Efeitos colaterais em Dollar?                    <- FOCO
     Arredondamento de dinheiro?
  */
 

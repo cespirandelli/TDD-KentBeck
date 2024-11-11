@@ -43,6 +43,8 @@
 
 - De quantos pequenos passos as refatorações são compostas.
 
+
+
 ## Capítulo 1 - Dinheiro Multi-Moeda
 
 ### Relatório inicial (em uma única moeda - USD):
@@ -235,6 +237,8 @@ public class Dollar
 
 Este processo de desenvolvimento baseado em **Test-Driven Development (TDD)**, que envolve a criação de testes, execução, correção mínima e refatoração, foi mais bem minuciosa no **Capítulo 1**. Embora este ciclo tenha sido abordado de forma detalhada inicialmente, ele será resolvido de maneira implícita nos próximos arquivos, à medida que continuamos a implementar e refatorar o código, mantendo o foco na evolução dos exemplos dados no livro de maneira incremental e controlada.
 
+
+
 ## Capítulo 2 - Degenerar Objetos
 
 Agora queremos realizar este teste:
@@ -301,10 +305,147 @@ Esse comportamento é necessário para garantir que cada operação de multiplic
 
 4. **Refatoramos para remover duplicações e generalizar o código**: Finalmente, refatoramos a implementação para torná-la mais flexível, retornando um novo objeto `Dollar` a cada multiplicação e mantendo o comportamento esperado.
 
-
-
 A tradução de um sentimento (como a aversão a efeitos colaterais) para um teste (como, por exemplo, garantir que multiplicar o mesmo objeto `Dollar` duas vezes produza o resultado esperado) é uma prática comum em TDD. 
 
 Quanto mais eu praticar esse processo, mais apto estarei a traduzir meus julgamentos e intenções de design em testes que validem o comportamento desejado.
 
 Após determinar qual é o comportamento correto, podemos então discutir a melhor forma de implementá-lo de maneira eficaz e eficiente.
+
+
+
+## Capítulo 3 - Igualdade para Todos
+
+Quando você tem um número inteiro e soma 1 a ele, não espera que o valor original mude — você espera que o novo valor seja o resultado da soma. Objetos, no entanto, não se comportam dessa maneira.
+
+Podemos usar objetos de forma semelhante a valores, como fizemos com nosso `Dollar`. O padrão para isso é o **Value Object**. Uma das suas restrições principais é que os valores das variáveis de instância do objeto **nunca** mudam depois de serem definidos no construtor.
+
+### O que é um **Value Object** de forma bem simples?
+
+Imagine que você tem uma **caixinha de valores**. Nessa caixinha, você coloca um dado que não precisa de um nome ou identificação, mas apenas de **dados dentro dela**. Quando duas dessas caixinhas contêm os **mesmos dados**, elas são **iguais**. E uma vez que você coloca algo dentro dessa caixinha, você **não pode mais mudar o que está dentro dela** — a caixinha é **imutável**.
+
+### Um exemplo simples de **Value Object** em C#
+
+Vamos criar um **Value Object** para representar uma **coisa simples**: uma **pessoa com idade**. O nome da pessoa não importa, só a **idade**. Se duas pessoas têm a mesma idade, elas são consideradas iguais, mesmo que sejam pessoas diferentes.
+
+```
+public class Idade
+{
+    public int Valor { get; }
+
+    public Idade(int valor)
+    {
+        if (valor < 0)
+            throw new ArgumentException("Idade não pode ser negativa.");
+        Valor = valor;
+    }
+
+    // Compara apenas o valor (idade), não importa se são objetos diferentes.
+    public override bool Equals(object obj)
+    {
+        if (obj is Idade outraIdade)
+        {
+            return this.Valor == outraIdade.Valor;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return Valor.GetHashCode();  // Gerar um código único baseado no valor
+    }
+}
+
+```
+
+#### O que isso significa?
+
+- **Imutabilidade**: Depois que a caixinha é criada com um valor (por exemplo, `10`), esse valor **não pode ser alterado**. Se a idade for `10`, ela será sempre `10`.
+- **Igualdade**: Se você tem duas caixinhas, e ambas têm o valor `10`, elas são consideradas **iguais**, mesmo que sejam instâncias diferentes.
+- **Sem Identidade**: Não importa quantas caixinhas com o valor `10` você tenha, todas elas serão iguais, porque **não têm identidade própria**, apenas o valor que carregam.
+  
+  
+
+Agora, se você comparar duas instâncias de ```Idade``` com o valor `10`, elas serão **iguais**:
+
+```
+var idade1 = new Idade(10);
+
+var idade2 = new Idade(10);
+
+Console.WriteLine(idade1.Equals(idade2)); // Vai imprimir "True"`
+```
+
+
+
+Uma implicação do uso de **Value Object** é que todas as operações que modificam o valor devem retornar um **novo objeto**. Outra implicação é que o **Value Object deve implementar o método `Equals()`** para garantir que a comparação entre instâncias seja feita corretamente.
+
+Se você utilizar o **`Dollar`** como chave em uma tabela hash, é essencial que você também implemente o método **`GetHashCode()`**, caso tenha implementado **`Equals()`**. Isso ocorre porque, em coleções como dicionários e tabelas hash, a consistência entre esses dois métodos é fundamental para o correto funcionamento da estrutura de dados.
+
+Vamos criar um teste para checar igualdade (antes de implementar o método, o teste irá falhar):
+
+```
+public void TestEquality(){
+    Assert.True(new Dollar(5).Equals(new Dollar(5)));
+}
+```
+
+A implementação que devemos realizar para que retorne True mais simples seria:
+
+``` 
+public bool Equals(Object obj){
+    return true;
+}
+```
+
+#### Triangulação:
+
+Para afirmarmos que "5 == 5", ou "quantidade == 5", ou "quantidade = Dollar.Amount". Temos que criar a comparação deste com outros número, por exemplo "5 != 6".
+
+```
+public void TestEquality()
+{
+    Assert.False(new Dollar(5).Equals(new Dollar(6)));
+}
+```
+
+Logo, devemos implementar em ```Dollar```: 
+
+```
+public override bool Equals(object obj)
+{
+    if (obj is Dollar dollar) // Verifica se o objeto é do tipo Dollar
+    {
+        return Amount == dollar.Amount; // Compara os valores (Amount)
+    }
+    return false; // Retorna false caso o objeto não seja do tipo Dollar
+}
+
+public override int GetHashCode()
+{
+    return Amount.GetHashCode(); // Retorna o código de hash de Amount
+}
+```
+
+##### Por que devemos implementar `Equals()` e `GetHashCode()` no `Dollar`?
+
+Quando trabalhamos com objetos em C# e queremos compará-los, especialmente em coleções como listas, dicionários ou tabelas hash, é fundamental garantir que a comparação entre os objetos seja feita de maneira correta e consistente. Para isso, precisamos implementar os métodos `Equals()` e `GetHashCode()`. Vamos entender o motivo de sua implementação no contexto do seu código com a classe `Dollar` e o teste de igualdade.
+
+
+
+1. **A importância do método `Equals()`**
+
+O método `Equals()` é utilizado para comparar dois objetos e determinar se eles são **iguais em valor**. Se não implementarmos o método `Equals()`, o C# vai usar a implementação padrão da classe `object`, que compara se os objetos são **referências iguais**, ou seja, se são o **mesmo objeto na memória**, e não se possuem valores iguais.
+
+**No caso do `Dollar`, a lógica de igualdade que queremos é baseada no valor do campo `Amount`**, não nas referências dos objetos. Ou seja, dois objetos `Dollar` com o mesmo valor (por exemplo, `Dollar(5)`) devem ser considerados **iguais**, independentemente de serem instâncias diferentes, localizadas em locais diferentes da memória.
+
+
+
+2. **A importância do método `GetHashCode()`**
+
+Quando implementamos `Equals()`, é fundamental implementar também o método `GetHashCode()`. Esse método é usado em **estruturas de dados baseadas em hash**, como o **Dictionary**, **HashSet**, e outras coleções que usam tabelas hash. 
+
+O `GetHashCode()` é responsável por gerar um código único para cada objeto, baseado em seu valor. Esse código é utilizado para buscar o objeto de forma eficiente nas coleções que utilizam hashing.
+
+Se dois objetos são considerados iguais pelo método `Equals()`, seus códigos de hash **também devem ser iguais**. Caso contrário, podemos ter problemas, como a duplicação de objetos em coleções baseadas em hash.
+
+No caso do `Dollar`, a implementação de `GetHashCode()` é simples, pois ele deve gerar um código baseado no valor de `Amount`.

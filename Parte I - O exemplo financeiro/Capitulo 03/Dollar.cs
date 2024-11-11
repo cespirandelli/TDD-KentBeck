@@ -1,19 +1,14 @@
 /*
-Considere o seguinte teste:
-
-(java)
-public void testMultiplication(){
-    Dollar five = new Dollar(5);
-    five.times(2);
-    assertEquals(10, five.amount);
-}
-
     $5 USD + 10 CHF = $10 USD se a taxa é 2:1
     $5 * 2 = $10 USD
     Tornar "quantidade" privada.
-    Efeitos colaterais em Dollar?                <- FOCO
+    Efeitos colaterais em Dollar?
     Arredondamento de dinheiro?
- */
+    equals()                                         <- FOCO
+    hashCode()
+    Igualdade de null
+    Igualdade de objeto
+    */
 
 //(C#)
 namespace Capitulo_3
@@ -30,6 +25,27 @@ namespace Capitulo_3
         public Dollar Times(int multiplier)
         {
             return new Dollar(Amount * multiplier);
+        }
+
+        // Abaixo tenho a menor modificação para que o teste
+        // seja verdadeiro ("verde").
+        //public bool Equals(object obj)
+        //{
+        //    return true;
+        //}
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Dollar dollar)
+            {
+                return Amount == dollar.Amount;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Amount.GetHashCode();
         }
     }
 }
