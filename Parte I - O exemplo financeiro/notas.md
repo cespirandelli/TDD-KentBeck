@@ -448,4 +448,68 @@ O `GetHashCode()` é responsável por gerar um código único para cada objeto, 
 
 Se dois objetos são considerados iguais pelo método `Equals()`, seus códigos de hash **também devem ser iguais**. Caso contrário, podemos ter problemas, como a duplicação de objetos em coleções baseadas em hash.
 
-No caso do `Dollar`, a implementação de `GetHashCode()` é simples, pois ele deve gerar um código baseado no valor de `Amount`.
+
+
+## Capítulo 4 - Privacidade
+
+Agora que definimos a igualdade entre objetos, podemos usá-la para tornar nossos testes mais expressivos.
+
+```
+[Fact]
+public void TestMultiplication()
+{
+    Dollar five = new Dollar(5);
+
+    Dollar product = five.Times(2);
+    Assert.Equal(10, product.Amount);
+
+
+    product = five.Times(3);
+    Assert.Equal(15, product.Amount);
+}
+```
+
+Podemos reescrever o Assert para comparar Dollar com Dollar. Em vez de comparar diretamente os valores internos (`Amount`), podemos comparar objetos :
+
+```
+[Fact]
+public void TestMultiplication()
+{
+    Dollar five = new Dollar(5);
+
+    Dollar product = five.Times(2);
+    Assert.Equal(new Dollar(10), product);
+
+
+    product = five.Times(3);
+    Assert.Equal(new Dollar(15), product);
+}
+```
+
+Pode-se observar também que agora a variável product não é mais tão útil, podemos otimizá-la, tornando o teste mais direto e conciso:
+
+```
+[Fact]
+public void TestMultiplication()
+{
+    Dollar five = new Dollar(5);
+
+    Assert.Equal(new Dollar(10), five.Times(2));
+
+    Assert.Equal(new Dollar(15), five.Times(3));
+}
+```
+
+Com essa mudança, o teste se torna mais expressivo. Agora ele "fala" mais diretamente o que esperamos: "O valor de `five` multiplicado por 2 deve resultar em `Dollar(10)`", e assim por diante.
+
+
+
+Com estas mudanças para o teste, Dollar é a única classe usando sua variável de instância `amount`, então podemos torná-la privada: ```private int Amount { get; }``` 
+
+### **Por que tornar a variável `Amount` privada?**
+
+Agora que o teste não acessa diretamente o valor de `Amount` (mas sim compara objetos `Dollar`), temos uma boa oportunidade de tornar o campo `Amount` privado. Isso oferece várias vantagens:
+
+- **Encapsulamento**: O valor de `Amount` não é acessível diretamente de fora da classe. Ele é protegido e só pode ser manipulado dentro da classe.
+- **Segurança**: A classe `Dollar` garante que seu valor não seja alterado inadvertidamente, uma vez que a variável `Amount` é **imutável** e privada.
+- **Desacoplamento**: Os testes agora trabalham com o objeto completo, sem depender da estrutura interna de dados da classe. Isso promove uma maior flexibilidade e facilita alterações futuras na implementação sem impactar os testes.
