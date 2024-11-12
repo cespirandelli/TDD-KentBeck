@@ -1,17 +1,12 @@
-﻿/*
-    5 CHF * 2 = 10 CHF
-    Duplicação de Dólar/Franco
-    Igualdade comum                                  <- FOCO
-    Multiplicação comum
- */
-
-namespace Capitulo_7
+﻿namespace Capitulo_7
 {
     public class Franc : Money
     {
         public Franc(int amount) : base(amount) { }
 
-        public Franc Times(int multiplier)
+        public override Money Times(int multiplier)
+        // A palavra-chave override, indica que esses métodos
+        // estão substituindo o método abstrat em Money
         {
             return new Franc(Amount * multiplier);
         }
