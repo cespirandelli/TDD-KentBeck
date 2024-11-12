@@ -653,3 +653,40 @@ Embora os valores de `Amount` sejam iguais, isso é **tecnicamente errado**, poi
 #### O que será feito mais à frente:
 
 Para corrigir esse comportamento, precisaremos adicionar uma comparação do **tipo dos objetos** utilizando o método `GetType()`. Dessa forma, vamos garantir que dois objetos de tipos diferentes (por exemplo, `Dollar` e `Franc`) não sejam considerados iguais, mesmo que tenham o mesmo valor.
+
+
+
+## Capítulo 7 - Maças e Laranjas
+
+ Este teste deveria passar, mas ele falha: 
+
+`Assert.False(new Dollar(5).Equals(new Franc(5)));`
+
+Isto é devido ao seu **tipo**, que no caso está igual em nossa comparação, o que está incorreto. Dólares são iguais a Francos. Logo temos que alterar nossa lógica de comparação:
+
+```
+public override bool Equals(object obj)
+{
+    if (obj is Money money)
+    {
+        return Amount == money.Amount && GetType() == money.GetType();
+    }
+    return false;
+}
+```
+
+> "Usar as classes dessa forma no código modelo é um pouco 'mau cheiroso'.
+> 
+> Gostaríamos de usar um critério que fizesse sentido no domínio das finanças, não no domínio de objetos Java. 
+> 
+> Mas, não temos atualmente nada como uma moeda, e isso não parece ser razão suficiente para introduzir uma, então isso terá que ficar assim por enquanto."
+
+
+
+Até agora fizemos:
+
+1. Pegamos uma dúvida que nos incomodava e a transformamos num teste.
+
+2. Fizemos o teste rodar de uma forma razoável, mas não perfeita GetType().
+
+3. Decidimos não introduzir mais projeto até termos uma motivação melhor.
