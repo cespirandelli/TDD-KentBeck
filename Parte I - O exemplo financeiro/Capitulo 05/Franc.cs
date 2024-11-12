@@ -5,7 +5,7 @@
     Multiplicação comum
  */
 
-namespace Capitulo_05
+namespace Capitulo_5
 {
     public class Franc
     {

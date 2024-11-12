@@ -513,3 +513,143 @@ Agora que o teste não acessa diretamente o valor de `Amount` (mas sim compara o
 - **Encapsulamento**: O valor de `Amount` não é acessível diretamente de fora da classe. Ele é protegido e só pode ser manipulado dentro da classe.
 - **Segurança**: A classe `Dollar` garante que seu valor não seja alterado inadvertidamente, uma vez que a variável `Amount` é **imutável** e privada.
 - **Desacoplamento**: Os testes agora trabalham com o objeto completo, sem depender da estrutura interna de dados da classe. Isso promove uma maior flexibilidade e facilita alterações futuras na implementação sem impactar os testes.
+
+
+
+## Capítulo 5 - Falando Franca-mente
+
+Criamos um arquivo análogo ao de `Dollar`, agora para representar o **Franco Suíço** (Franc), seguindo os mesmos critérios utilizados na classe `Dollar`.
+
+No entanto, **agora temos duplicação de código** em excesso. Para evitar a repetição e facilitar a manutenção, precisamos eliminar essa duplicação antes de prosseguir com a criação do próximo teste.
+
+
+
+## Capítulo 6 - Igualdade para Todos, Restaurada
+
+No capítulo anterior, acabamos duplicando muito código. Agora, vamos refatorar para limpar essas duplicações. Para isso, ao invés de fazer uma das classes herdar da outra, vamos criar uma superclasse comum para ambas.
+
+Nossa estratégia será criar uma classe `Money`, que centralize o código comum relacionado à comparação de valores, como a igualdade entre os objetos.
+
+1. Criamos a superclasse Money apenas com seu "esqueleto" e herdamos em Dollar e Franc.
+   
+   ```
+   namespace Capitulo_6
+   {
+       public class Money
+       {
+   
+       }
+   }
+   ```
+   
+   ```
+   public class Dollar : Money
+   {...}
+   
+   
+   public class Franc : Money
+   {...}
+   ```
+
+2. Rodamos todos os testes notando que eles continuam funcionando normalmente.
+   
+   - Agora podemos mover `private int Amount;` para Money
+   
+   - Temos que alterar de `private`para `protected`para que as subclasses consigam acessá-las, porque, ao usar **`protected`**, a propriedade fica acessível dentro da classe base **`Money`** e também nas classes derivadas (como `Dollar` e `Franc`), mas não diretamente fora dessas classes.
+     
+     ```
+     public class Money
+     {
+         protected int Amount { get; }
+     }
+     ```
+
+3- Precisamos adicionar a declaração de Amount em Money para conseguir "trazer" para as subclasses em C#. Após iremos lidar com o método Equals. Testes continuam funcionando.
+
+```
+public class Money
+{
+    protected int Amount;
+
+    public Money(int amount)
+    {
+        Amount = amount;
+    }
+}
+```
+
+    Agora podemos alterar as subclasses:
+
+```
+public Dollar(int amount) : base(amount) { }
+
+
+public Franc(int amount) : base(amount) { }
+```
+
+4. Agora iremos transformar o método Equals para levá-lo à superclasse Money em seguida remover a redundância de suas subclasses. Testes continuam funcionando.
+   
+   ```
+   public class Money
+   {
+       protected int Amount;
+   
+       public Money(int amount)
+       {
+           Amount = amount;
+       }
+   
+       public override bool Equals(object obj)
+       {
+           if (obj is Money money)
+           {
+               return Amount == money.Amount;
+           }
+           return false;
+       }
+   
+       public override int GetHashCode()
+       {
+           return Amount.GetHashCode();
+       }
+   }
+   ```
+   
+   ```
+   public class Dollar : Money
+   {
+       public Dollar(int amount) : base(amount) { }
+   
+       public Dollar Times(int multiplier)
+       {
+           return new Dollar(Amount * multiplier);
+       }
+   }
+   
+   {...}
+   
+   public class Franc : Money
+   {
+       public Franc(int amount) : base(amount) { }
+   
+       public Franc Times(int multiplier)
+       {
+           return new Franc(Amount * multiplier);
+   
+       }
+   }
+   ```
+
+
+
+#### Comparação de `Franc(5)` e `Dollar(5)`
+
+Adicionei um teste que compara um objeto `Franc(5)` com um objeto `Dollar(5)`, e o teste passou. No entanto, o motivo do teste passar é que a comparação está sendo feita **somente pelos valores** (`Amount`) e **não pelos tipos** dos objetos. 
+
+#### Problema:
+
+Embora os valores de `Amount` sejam iguais, isso é **tecnicamente errado**, pois `Dollar` e `Franc` são **tipos** diferentes, representando moedas diferentes, e deveriam ser considerados **objetos distintos**, mesmo que o valor seja o mesmo.  
+
+#### O que será feito mais à frente:
+
+Para corrigir esse comportamento, precisaremos adicionar uma comparação do **tipo dos objetos** utilizando o método `GetType()`. Dessa forma, vamos garantir que dois objetos de tipos diferentes (por exemplo, `Dollar` e `Franc`) não sejam considerados iguais, mesmo que tenham o mesmo valor.
