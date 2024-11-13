@@ -14,11 +14,12 @@
     Multiplicação comum
     Comparar Francos com Dólares
     Moeda?
+    Deletar TestFrancMultiplication()?
     */
 
-namespace Capitulo_7
+namespace Capitulo_8
 {
-    public class Money
+    public abstract class Money
     {
         protected int Amount;
 
@@ -40,6 +41,20 @@ namespace Capitulo_7
         public override int GetHashCode()
         {
             return Amount.GetHashCode();
+        }
+
+        // Método abstrato (Método à ser implementado nas classes filhas)
+        public abstract Money Times(int multiplier);
+
+        // Métodos estáticos para criação de instâncias de Dollar e Franc
+        public static Money Dollar(int amount)
+        {
+            return new Dollar(amount);
+        }
+
+        public static Money Franc(int amount)
+        {
+            return new Franc(amount);
         }
     }
 }
