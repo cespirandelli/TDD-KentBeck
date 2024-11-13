@@ -43,8 +43,6 @@
 
 - De quantos pequenos passos as refatorações são compostas.
 
-
-
 ## Capítulo 1 - Dinheiro Multi-Moeda
 
 ### Relatório inicial (em uma única moeda - USD):
@@ -237,8 +235,6 @@ public class Dollar
 
 Este processo de desenvolvimento baseado em **Test-Driven Development (TDD)**, que envolve a criação de testes, execução, correção mínima e refatoração, foi mais bem minuciosa no **Capítulo 1**. Embora este ciclo tenha sido abordado de forma detalhada inicialmente, ele será resolvido de maneira implícita nos próximos arquivos, à medida que continuamos a implementar e refatorar o código, mantendo o foco na evolução dos exemplos dados no livro de maneira incremental e controlada.
 
-
-
 ## Capítulo 2 - Degenerar Objetos
 
 Agora queremos realizar este teste:
@@ -311,8 +307,6 @@ Quanto mais eu praticar esse processo, mais apto estarei a traduzir meus julgame
 
 Após determinar qual é o comportamento correto, podemos então discutir a melhor forma de implementá-lo de maneira eficaz e eficiente.
 
-
-
 ## Capítulo 3 - Igualdade para Todos
 
 Quando você tem um número inteiro e soma 1 a ele, não espera que o valor original mude — você espera que o novo valor seja o resultado da soma. Objetos, no entanto, não se comportam dessa maneira.
@@ -354,7 +348,6 @@ public class Idade
         return Valor.GetHashCode();  // Gerar um código único baseado no valor
     }
 }
-
 ```
 
 #### O que isso significa?
@@ -362,8 +355,6 @@ public class Idade
 - **Imutabilidade**: Depois que a caixinha é criada com um valor (por exemplo, `10`), esse valor **não pode ser alterado**. Se a idade for `10`, ela será sempre `10`.
 - **Igualdade**: Se você tem duas caixinhas, e ambas têm o valor `10`, elas são consideradas **iguais**, mesmo que sejam instâncias diferentes.
 - **Sem Identidade**: Não importa quantas caixinhas com o valor `10` você tenha, todas elas serão iguais, porque **não têm identidade própria**, apenas o valor que carregam.
-  
-  
 
 Agora, se você comparar duas instâncias de ```Idade``` com o valor `10`, elas serão **iguais**:
 
@@ -374,8 +365,6 @@ var idade2 = new Idade(10);
 
 Console.WriteLine(idade1.Equals(idade2)); // Vai imprimir "True"`
 ```
-
-
 
 Uma implicação do uso de **Value Object** é que todas as operações que modificam o valor devem retornar um **novo objeto**. Outra implicação é que o **Value Object deve implementar o método `Equals()`** para garantir que a comparação entre instâncias seja feita corretamente.
 
@@ -391,7 +380,7 @@ public void TestEquality(){
 
 A implementação que devemos realizar para que retorne True mais simples seria:
 
-``` 
+```
 public bool Equals(Object obj){
     return true;
 }
@@ -430,15 +419,11 @@ public override int GetHashCode()
 
 Quando trabalhamos com objetos em C# e queremos compará-los, especialmente em coleções como listas, dicionários ou tabelas hash, é fundamental garantir que a comparação entre os objetos seja feita de maneira correta e consistente. Para isso, precisamos implementar os métodos `Equals()` e `GetHashCode()`. Vamos entender o motivo de sua implementação no contexto do seu código com a classe `Dollar` e o teste de igualdade.
 
-
-
 1. **A importância do método `Equals()`**
 
 O método `Equals()` é utilizado para comparar dois objetos e determinar se eles são **iguais em valor**. Se não implementarmos o método `Equals()`, o C# vai usar a implementação padrão da classe `object`, que compara se os objetos são **referências iguais**, ou seja, se são o **mesmo objeto na memória**, e não se possuem valores iguais.
 
 **No caso do `Dollar`, a lógica de igualdade que queremos é baseada no valor do campo `Amount`**, não nas referências dos objetos. Ou seja, dois objetos `Dollar` com o mesmo valor (por exemplo, `Dollar(5)`) devem ser considerados **iguais**, independentemente de serem instâncias diferentes, localizadas em locais diferentes da memória.
-
-
 
 2. **A importância do método `GetHashCode()`**
 
@@ -447,8 +432,6 @@ Quando implementamos `Equals()`, é fundamental implementar também o método `G
 O `GetHashCode()` é responsável por gerar um código único para cada objeto, baseado em seu valor. Esse código é utilizado para buscar o objeto de forma eficiente nas coleções que utilizam hashing.
 
 Se dois objetos são considerados iguais pelo método `Equals()`, seus códigos de hash **também devem ser iguais**. Caso contrário, podemos ter problemas, como a duplicação de objetos em coleções baseadas em hash.
-
-
 
 ## Capítulo 4 - Privacidade
 
@@ -502,8 +485,6 @@ public void TestMultiplication()
 
 Com essa mudança, o teste se torna mais expressivo. Agora ele "fala" mais diretamente o que esperamos: "O valor de `five` multiplicado por 2 deve resultar em `Dollar(10)`", e assim por diante.
 
-
-
 Com estas mudanças para o teste, Dollar é a única classe usando sua variável de instância `amount`, então podemos torná-la privada: ```private int Amount { get; }``` 
 
 ### **Por que tornar a variável `Amount` privada?**
@@ -514,15 +495,11 @@ Agora que o teste não acessa diretamente o valor de `Amount` (mas sim compara o
 - **Segurança**: A classe `Dollar` garante que seu valor não seja alterado inadvertidamente, uma vez que a variável `Amount` é **imutável** e privada.
 - **Desacoplamento**: Os testes agora trabalham com o objeto completo, sem depender da estrutura interna de dados da classe. Isso promove uma maior flexibilidade e facilita alterações futuras na implementação sem impactar os testes.
 
-
-
 ## Capítulo 5 - Falando Franca-mente
 
 Criamos um arquivo análogo ao de `Dollar`, agora para representar o **Franco Suíço** (Franc), seguindo os mesmos critérios utilizados na classe `Dollar`.
 
 No entanto, **agora temos uma duplicação de código excessiva**. Para evitar a repetição e facilitar a manutenção, precisamos eliminar essa duplicação antes de prosseguir com a criação do próximo teste.
-
-
 
 ## Capítulo 6 - Igualdade para Todos, Restaurada
 
@@ -545,28 +522,28 @@ Nossa estratégia será criar uma classe `Money`, que centralize o código comum
    ```
    public class Dollar : Money
    {...}
-   
-   
-   public class Franc : Money
-   {...}
    ```
 
-2. Rodamos todos os testes e verificamos que eles continuam funcionando normalmente.
-   
-   - Agora podemos mover `private int Amount;` para a classe `Money`.
-   
-   - Precisamos alterar de `private` para `protected`, para que as subclasses consigam acessá-la. Ao usar **`protected`**, a propriedade fica acessível dentro da classe base **`Money`** e também nas classes derivadas (como `Dollar` e `Franc`), mas não diretamente fora dessas classes.
-   
-   - ```
-     public class Money
-     {
-         protected int Amount { get; }
-     }
-     ```
-
-3- Precisamos adicionar a declaração de `Amount` em `Money` para que ela possa ser acessada pelas subclasses em C#. Em seguida, vamos lidar com o método `Equals`. Os testes continuam funcionando normalmente.
+   public class Franc : Money
+   {...}
 
 ```
+2. Rodamos todos os testes e verificamos que eles continuam funcionando normalmente.
+
+- Agora podemos mover `private int Amount;` para a classe `Money`.
+
+- Precisamos alterar de `private` para `protected`, para que as subclasses consigam acessá-la. Ao usar **`protected`**, a propriedade fica acessível dentro da classe base **`Money`** e também nas classes derivadas (como `Dollar` e `Franc`), mas não diretamente fora dessas classes.
+
+- ```
+  public class Money
+  {
+      protected int Amount { get; }
+  }
+  ```
+
+3- Precisamos adicionar a declaração de `Amount` em `Money` para que ela possa ser acessada pelas subclasses em C#. Em seguida, vamos lidar com o método `Equals`. Os testes continuam funcionando normalmente.
+```
+
 public class Money
 {
     protected int Amount;
@@ -575,30 +552,30 @@ public class Money
     {
         Amount = amount;
     }
+
 }
-```
 
+```
     Agora podemos alterar as subclasses:
-
 ```
+
 public Dollar(int amount) : base(amount) { }
 
-
 public Franc(int amount) : base(amount) { }
+
+```
+4. Agora vamos transformar o método `Equals` para movê-lo para a superclasse `Money`, e em seguida remover a redundância nas suas subclasses. Os testes continuam funcionando normalmente.
 ```
 
-4. Agora vamos transformar o método `Equals` para movê-lo para a superclasse `Money`, e em seguida remover a redundância nas suas subclasses. Os testes continuam funcionando normalmente.
-   
-   ```
    public class Money
    {
        protected int Amount;
-   
+
        public Money(int amount)
        {
            Amount = amount;
        }
-   
+    
        public override bool Equals(object obj)
        {
            if (obj is Money money)
@@ -607,41 +584,44 @@ public Franc(int amount) : base(amount) { }
            }
            return false;
        }
-   
+    
        public override int GetHashCode()
        {
            return Amount.GetHashCode();
        }
+
    }
-   ```
-   
-   ```
+
+```
+
+```
+
    public class Dollar : Money
    {
        public Dollar(int amount) : base(amount) { }
-   
+
        public Dollar Times(int multiplier)
        {
            return new Dollar(Amount * multiplier);
        }
+
    }
-   
+
    {...}
-   
+
    public class Franc : Money
    {
        public Franc(int amount) : base(amount) { }
-   
+
        public Franc Times(int multiplier)
        {
            return new Franc(Amount * multiplier);
-   
+    
        }
+
    }
-   ```
 
-
-
+```
 #### Comparação de `Franc(5)` e `Dollar(5)`
 
 Adicionei um teste que compara um objeto `Franc(5)` com um objeto `Dollar(5)`, e o teste passou. No entanto, o motivo do teste passar é que a comparação está sendo feita **somente pelos valores** (`Amount`) e **não pelos tipos** dos objetos. 
@@ -663,8 +643,8 @@ Para corrigir esse comportamento, precisaremos adicionar uma comparação do **t
 `Assert.False(new Dollar(5).Equals(new Franc(5)));`
 
 Isso ocorre devido ao **tipo**, que, no caso, está sendo considerado igual na nossa comparação, o que é incorreto. **Dólares não são iguais a Francos**. Logo, precisamos alterar a lógica de comparação:
-
 ```
+
 public override bool Equals(object obj)
 {
     if (obj is Money money)
@@ -673,8 +653,8 @@ public override bool Equals(object obj)
     }
     return false;
 }
-```
 
+```
 > "Usar as classes dessa forma no código modelo é um pouco 'mau cheiroso'.
 > 
 > Gostaríamos de usar um critério que fizesse sentido no domínio das finanças, não no domínio de objetos Java. 
@@ -691,13 +671,13 @@ Até agora fizemos:
 
 3. Decidimos não introduzir mais projetos até termos uma motivação mais clara para isso.
 
- 
 
-## Capítulo 8 - Fazendo Objetos.
+
+## Capítulo 8 - Fazendo Objetos
 
 Agora, vamos alterar — e até remover — o método `Times` das classes `Dollar` e `Franc` para movê-lo para a classe `Money`, já que suas implementações são extremamente semelhantes.
-
 ```
+
 public Money Times(int multiplier)
 {
     return new Dollar(Amount * multiplier);
@@ -705,31 +685,30 @@ public Money Times(int multiplier)
 
 {...}
 
-
 public Money Times(int multiplier)
 {
     return new Franc(Amount * multiplier);
 }
-```
 
+```
 > "O próximo passo não é tão óbvio. Ambas as subclasses de Money não estáo fazendo o suficiente para justificar sua existência, logo, gostaríamos de elimiá-las. Mas, não podemos fazer isso em um grande passo, pois não seria uma demonstração muito eficaz de TDD." 
 
 
 
 Para isso vamos alterar nosso teste e sua implementação:
-
 ```
+
 public void TestMultiplication()
 {
     Dollar five = Money.Dollar(5);
     Assert.Equal(new Dollar(10), five.Times(2));
     Assert.Equal(new Dollar(15), five.Times(3));
 }
-```
 
+```
 Implementação em Dollar e Franc:
-
 ```
+
 static Dollar dollar(int amount)
 {
     return new Dollar(amount);
@@ -737,24 +716,23 @@ static Dollar dollar(int amount)
 
 {...}
 
-
 static Franc franc(int amount)
 {
     return new Franc(amount);
 }
-```
 
+```
 Ainda não removemos as referências à `Dollar`, por isso precisamos alterar a declaração no teste novamente:
-
 ```
+
 public void TestMultiplication()
 {
     Money five = Money.Dollar(5);
     Assert.Equal(new Dollar(10), five.Times(2));
     Assert.Equal(new Dollar(15), five.Times(3));
 }
-```
 
+```
 Note que o compilador está reclamando que o método `Times()` não está implementado em `Money`. Portanto, precisamos resolver isso rapidamente para que os testes rodem novamente, pois atualmente não conseguimos nem realizar o build.
 
 ### Vamos fazer algumas alterações em `Money`e suas subclasses:
@@ -762,11 +740,11 @@ Note que o compilador está reclamando que o método `Times()` não está implem
 Vamos tornar `Money` uma classe **abstrata**.
 
 1. **Por que a classe `Money` precisa ser abstrata?**
-   
+
    - Porque iremos implementar um método abstrato.
 
 2. **Métodos abstratos não podem ser implementados diretamente** na classe base. Portanto, para ter o método `Times` como abstrato, **precisamos** marcar a classe base `Money` como `abstract`.
-   
+
    - Isso é necessário para que o compilador entenda que o método `Times` é um "contrato" que deve ser implementado pelas classes filhas (como `Dollar` e `Franc`).
 
 3. **Classe abstrata como base**: A classe `Money` deve ser abstrata porque ela não pode ser instanciada diretamente. Porém, queremos que as subclasses concretas (como `Dollar`, `Franc`, etc.) implementem o comportamento específico. A classe `Money` define a estrutura comum e o comportamento genérico (como `Equals`, `GetHashCode`), mas o comportamento de multiplicação (`Times`) deve ser implementado de forma diferente para cada tipo de moeda.
@@ -832,3 +810,42 @@ public void TestEquality()
 3. **Desacoplamos o código de teste** da existência de subclasses concretas por meio da introdução de métodos fábrica.
 
 4. **Percebemos que, quando as subclasses desaparecerem**, alguns testes se tornarão redundantes. Contudo, decidimos não tomar providências imediatas sobre isso.
+
+## Capítulo 9 - Tempos em que Estamos Vivendo
+
+> "Como queremos testar moedas no momento?"
+
+Vamos tentar reproduzir uma moeda apenas pelo uso do retorno de um string, como se o objeto nos avisasse qual é a moeda que estamos lidando. Primeiro vamos criar o teste:
+
+```
+[Fact]
+public void TestCurrency()
+{
+    Assert.Equal("USD", Money.Dollar(1).Currency());
+    Assert.Equal("CHF", Money.Franc(1).Currency());
+}
+```
+
+Depois declaramos Currency em Money, só então implementamos nas subclasses.
+
+```
+Money
+public abstract string Currency();
+```
+
+```
+Dolar
+public override string Currency()
+{
+    return "USD";
+} 
+
+{...}
+
+
+Franc
+public override string Currency()
+{
+    return "CHF";
+} 
+```
