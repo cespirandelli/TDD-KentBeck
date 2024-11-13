@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Capitulo_1
+﻿namespace Capitulo_1
 {
     public class DollarTest
     {

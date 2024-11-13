@@ -4,7 +4,7 @@
     Tornar "quantidade" privada.
     Efeitos colaterais em Dollar?
     Arredondamento de dinheiro?
-    equals()                                         <- FOCO
+    equals()                                        <- FOCO
     hashCode()
     Igualdade de null
     Igualdade de objeto
