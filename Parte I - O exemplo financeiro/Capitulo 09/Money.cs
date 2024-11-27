@@ -22,13 +22,11 @@ namespace Capitulo_9
     public abstract class Money
     {
         protected int Amount;
-        protected string CurrencyValue;
+        protected string _currency;
 
-        public Money(int amount, string currencyValue)
+        public Money(int amount)
         {
             Amount = amount;
-            CurrencyValue = currencyValue;
-
         }
 
         public override bool Equals(object obj)
@@ -50,17 +48,17 @@ namespace Capitulo_9
 
         public string Currency()
         {
-            return CurrencyValue;
+            return _currency;
         }
 
         public static Money Dollar(int amount)
         {
-            return new Dollar(amount);
+            return new Dollar(amount, "USD");
         }
 
         public static Money Franc(int amount)
         {
-            return new Franc(amount);
+            return new Franc(amount, "CHF");
         }
     }
 }

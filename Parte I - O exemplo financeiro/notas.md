@@ -523,7 +523,7 @@ Nossa estratégia será criar uma classe `Money`, que centralize o código comum
    public class Dollar : Money
    {...}
    ```
-
+   
    public class Franc : Money
    {...}
 
@@ -539,11 +539,11 @@ Nossa estratégia será criar uma classe `Money`, que centralize o código comum
   {
       protected int Amount { get; }
   }
-  ```
-
-3- Precisamos adicionar a declaração de `Amount` em `Money` para que ela possa ser acessada pelas subclasses em C#. Em seguida, vamos lidar com o método `Equals`. Os testes continuam funcionando normalmente.
 ```
 
+3- Precisamos adicionar a declaração de `Amount` em `Money` para que ela possa ser acessada pelas subclasses em C#. Em seguida, vamos lidar com o método `Equals`. Os testes continuam funcionando normalmente.
+
+```
 public class Money
 {
     protected int Amount;
@@ -554,28 +554,28 @@ public class Money
     }
 
 }
-
 ```
+
     Agora podemos alterar as subclasses:
-```
 
+```
 public Dollar(int amount) : base(amount) { }
 
 public Franc(int amount) : base(amount) { }
-
 ```
+
 4. Agora vamos transformar o método `Equals` para movê-lo para a superclasse `Money`, e em seguida remover a redundância nas suas subclasses. Os testes continuam funcionando normalmente.
-```
-
+   
+   ```
    public class Money
    {
        protected int Amount;
-
+   
        public Money(int amount)
        {
            Amount = amount;
        }
-    
+   
        public override bool Equals(object obj)
        {
            if (obj is Money money)
@@ -584,13 +584,14 @@ public Franc(int amount) : base(amount) { }
            }
            return false;
        }
-    
+   
        public override int GetHashCode()
        {
            return Amount.GetHashCode();
        }
-
+   
    }
+   ```
 
 ```
 
@@ -842,10 +843,123 @@ public override string Currency()
 
 {...}
 
-
 Franc
 public override string Currency()
 {
     return "CHF";
 } 
 ```
+
+Como queremos que a mesma implementação seja suficiente em ambas as subclasses, podemos armazenar a moeda em uma variável de instância e retornar a variável.
+
+```
+Money
+protected string _currency;
+```
+
+```
+Dollar
+public Dollar(int amount) : base(amount)
+{
+    _currency = "USD";
+}
+
+public string Currency()
+{
+    return _currency;
+}
+
+{...}
+
+Franc
+public Franc(int amount) : base(amount)
+{
+    _currency = "CHF";
+}
+
+public string Currency()
+{
+    return _currency;
+}
+```
+
+Agora podemos subir a declaração do método para `Money` pois ambas implementações são idênticas e removemos das subclasses.
+
+```
+Money
+protected string _currency;
+
+{...}
+public string Currency()
+{
+    return _currency;
+}
+{...}
+```
+
+em seguida podemos simplificar:
+
+```
+Dollar
+public class Dollar : Money
+{
+
+    public Dollar(int amount, string currency) : base(amount)
+    {
+        _currency = currency;
+    }
+
+    public override Money Times(int multiplier)
+    {
+        return Money.Dollar(Amount * multiplier);
+    }
+}
+
+{}
+
+
+public class Franc : Money
+{
+
+    public Franc(int amount, string currency) : base(amount)
+    {
+        _currency = currency;
+    }
+
+    public override Money Times(int multiplier)
+    {
+        return Money.Franc(Amount * multiplier);
+    }
+
+}
+```
+
+```
+Money
+{...}
+public static Money Dollar(int amount)
+{
+    return new Dollar(amount, "USD");
+}
+
+public static Money Franc(int amount)
+{
+    return new Franc(amount, "CHF");
+}
+```
+
+Assim, teremos a passagem da string toda vez que um novo objeto for instânciado.
+
+
+
+### Revisão:
+
+- Conciliamos dois coinstrutores, movendo a variação para o chamador (método fábrica) .
+
+- Realizamos uma refatoralçai análoga (fazendo em Dollar o que já fizemos em Franc).
+
+- Subimos dois construtores idênticos.
+
+
+
+# 
