@@ -962,4 +962,118 @@ Assim, teremos a passagem da string toda vez que um novo objeto for instânciado
 
 
 
-# 
+ 
+
+## Capítulo 10 - Tempos interessantes (Interesting Times)
+
+Ao terminar este capítulo teremos apenas umas classe para representar `Money`. Detalhe, as duas implementações de `times()` são parecidas, mas não idênticas.
+
+```
+Franc
+public override Money Times(int multiplier)
+{
+    return Money.Franc(Amount * multiplier);
+}
+
+{...}
+
+Dollar
+public override Money Times(int multiplier)
+{
+    return Money.Dollar(Amount * multiplier);
+}
+```
+
+O que podemos fazer para otimizar nossos métodos fábrica?
+
+```
+Franc
+public override Money Times(int multiplier)
+{
+    //return Money.Franc(Amount * multiplier);
+    return new Franc(Amount * multiplier, _currency);
+}
+
+{...}
+
+Dollar
+public override Money Times(int multiplier)
+{
+    //return Money.Dollar(Amount * multiplier);
+    return new Dollar(Amount * multiplier, _currency);
+}
+```
+
+Em `Money` ficará então:
+
+```
+public static Money Dollar(int amount)
+{
+    return new Dollar(amount, "USD");
+}
+
+public static Money Franc(int amount)
+{
+    return new Franc(amount, "CHF");
+}
+```
+
+ Logo iremos lidar com a implantação do método Equals, pois ela está comparando o tipo e não a moeda em si das classes. Mas antes criaremos o teste, para isso Money não poderá mais ser abstrata.
+
+```
+public Money(int amount, string currency)
+{
+    _amount = amount;
+    _currency = currency;
+}
+
+public override bool Equals(object obj)
+{
+    if (obj is Money money)
+    {
+        return _amount == money._amount
+            && Currency().Equals(money.Currency());
+    }
+    return false;
+}
+```
+
+Desta forma conseguimos criar o seguinte teste, que irá passar:
+
+```
+Test
+[Fact]
+public void TestDifferentClassEquality()
+{
+    Assert.True(new Money(10, "CHF").Equals(new Franc(10, "CHF")));
+}
+```
+
+Logo, o método `times()` agora pode ser alterado para construir Money, agora sim idênticos:
+
+```
+Franc e Dollar
+public override Money Times(int multiplier)
+{
+    return new Money(_amount * multiplier, _currency);
+}
+```
+
+Portanto podemos remover das subclasses e inserir em Money:
+
+```
+public virtual Money Times(int multiplier)
+{
+    return new Money(_amount*multiplier, _currency);
+}
+```
+
+### Revisão:
+
+- Conciliamos dois métodos - `times()` - pela otimização dos métodos que eles chamavam e pela substituição de constantes por variáveis.
+
+- Escrevemos `ToString()` sem um teste apenas para nos ajudas a depurar.
+
+- Tentamos uma mudança (Retornar `Money` ao invés de `Franc`) e deixamos os testes nos dizerem se funcionou.
+
+- Retrocedemos um experimento e escrevemos outro teste. Fazer o teste funcionar fez o experimento funcionar.
